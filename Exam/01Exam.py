@@ -28,9 +28,6 @@ def prepareData(listValues, range):
                 
                 newValue = (previousValue + nextValue) / 2
                 newListValues.append(newValue)
-
-                print(f'Valor {value}')
-                print(f'newValue {newValue}\n')
             else:
                 newListValues.append(value)
         

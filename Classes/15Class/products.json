@@ -1,0 +1,58 @@
+[
+   {
+      "id":1,
+      "name":"Jaleco",
+      "description":"Jaleco de alta qualidade fabricado para atender aos clientes mais exigentes",
+      "price":"R$ 34.99",
+      "tamanho":42, 
+      "available":true
+   },
+   {
+      "id":2,
+      "name":"Avental",
+      "description":"Avental de alta qualidade fabricado para atender aos clientes mais exigentes",
+      "price":"R$ 45.78",
+      "tamanho": 44,
+      "available":true
+   },
+   {
+      "id":3,
+      "name":"Touca",
+      "description":"Touca de alta qualidade fabricado para atender aos clientes mais exigentes",
+      "price":"R$ 12.83",
+      "tamanho": 38,
+      "available":false
+   },
+   {
+      "id":4,
+      "name":"Fronha",
+      "description":"Fronha de alta qualidade fabricado para atender aos clientes mais exigentes",
+      "price":"R$ 71.08",
+      "tamanho":36,
+      "available":false
+   },
+   {
+      "id":5,
+      "name":"Embalagem",
+      "description":"Embalagem de alta qualidade fabricado para atender aos clientes mais exigentes",
+      "price":"R$ 45.78",
+      "tamanho": 40,
+      "available":true
+   },
+   {
+      "id":6,
+      "name":"Porta talher",
+      "description":"Porta talher de alta qualidade fabricado para atender aos clientes mais exigentes",
+      "price":"R$ 12.89",
+      "tamanho":16,
+      "available":true
+   },
+   {
+      "id":7,
+      "name":"Porta absorvente",
+      "description":"Porta absorvente de alta qualidade fabricado para atender aos clientes mais exigentes",
+      "price":"R$ 6.23",
+      "tamanho": 8,
+      "available":true
+   }
+]
