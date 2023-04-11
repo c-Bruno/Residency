@@ -1,9 +1,11 @@
+# Carregando as bibliotecas que vão ser utilizadas nos exercicios
 import csv
 import os
 import pandas as pd
 import numpy as np
 
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 print('\033[1;34m===================================================================================== \033[m')
 print('\033[1;34mEXERCICIO 1\n \033[m')
@@ -53,7 +55,9 @@ def prepareData(listValues, range):
         newListValues = replaceOutRangeValues(listValues)
     
     return newListValues
+# -----------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Lendo os dados do arquivo externo 
 print('\033[33mImportando arquivo...\033[m')
 currentDirectory = os.path.dirname(os.path.abspath(__file__)) # Define o diretorio atual como o diretorio do arquivo
 fileName = os.path.join(currentDirectory, 'sinaisvitais003 100dias DV2 RAxxx9.txt') # Partindo do diretorio, procuramos pelo nome do arquivo
@@ -90,16 +94,25 @@ DFdatas = pd.DataFrame(auxDF, columns=['HORA', 'BATIMENTO', 'PRESSAO', 'TEMPERAT
 print(f"\033[0;32m\nDATA SET\033[m")
 # print(DFdatas.to_string())
 print(DFdatas)
+print('\033[33m\nImportação concluida...\033[m')
 
 
-print('\033[1;34m===================================================================================== \033[m')
+print('\033[1;34m\n===================================================================================== \033[m')
 print('\033[1;34mEXERCICIO 2\n \033[m')
 
 # Aplicando correlação para todos os itens presentes dentro do data set
-print(f"\033[0;32mAPLICANDO CORRELAÇÃO ENTRE TODOS OS ITENS(DATA SET COMPLETO)\n\033[m")
-
+print('\033[33mAplicando correlação geral...\033[m')
+print(f"\033[0;32m\nAPLICANDO CORRELAÇÃO ENTRE TODOS OS ITENS(DATA SET COMPLETO)\n\033[m")
 correlation = DFdatas.corr(method='pearson')
 print(f'{correlation}\n\n')
+
+# Plotando a matriz de correlação de todo o data set
+print('\033[33mPlotando matrix de correlação...\033[m')
+sns.heatmap(correlation, cmap='coolwarm', annot=True)
+plt.show()
+print('\033[33mMatrix de correlação plotada...\033[m')
+
+
 
 # # SEPARANDO OS VALORES
 # itens=[]
@@ -127,7 +140,7 @@ print(f'{correlation}\n\n')
         
 
 # input('aaaa')
-print('\033[1;34m===================================================================================== \033[m')
+print('\033[1;34m\n===================================================================================== \033[m')
 print('\033[1;34mEXERCICIO 3\n \033[m')
 
 
@@ -135,10 +148,11 @@ print('\033[1;34mEXERCICIO 3\n \033[m')
 print('\033[1;34m===================================================================================== \033[m')
 print('\033[1;34mEXERCICIO 4\n \033[m')
 
+# Descobrindo quantos pacotes existem dentro do arquivo de input
 packages=int(len(cashedFile) / 24)
 print("NÚMERO TOTAL DE PACOTES PARA ANÁLISE:  ", packages)
 
-# Dividindo o data set em pacotes de 24 e aplicando a correlação para cada um dos parametros
+# Aqui vamos dividir o data set em pacotes de 24 e aplicar a correlação para cada um dos parametros
 # (BATIMENTO CARDÍACO, PRESSÃO ARTERIAL E TEMPERATURA CORPORAL)
 for i in range(packages):
     packageCardiacBeatings = cardiacBeatings[i*24:(i+1)*24]
@@ -155,46 +169,45 @@ for i in range(packages):
     print("CORRELAÇÃO") # Aplicando correlação no dia i
     packageCorrelation = PDFdata.corr(method='pearson')
     print(packageCorrelation)
-    # print(PDFdata.describe())
 
     # -------------------------------------------------------------------------------------------
-    print("\nVALOR MEDIO") # Aplicando valor médio no dia i
+    print("\nVALOR MEDIO") # Aplicando valor médio no dia i para cada parametro
     print("BATIMENTO = ",PDFdata["BATIMENTO"].mean())
     print("PRESSAO = ",PDFdata["PRESSAO"].mean())
     print("TEMPERATURA = ",PDFdata["TEMPERATURA"].mean())
 
     # -------------------------------------------------------------------------------------------
-    print("\nVALOR MEDIO NumPy") # Aplicando média com avarege no dia i
+    print("\nVALOR MEDIO NumPy") # Aplicando média com avarege no dia i para cada parametro
     print("BATIMENTO = ", np.average(PDFdata["BATIMENTO"]))
     print("PRESSAO = ", np.average(PDFdata["PRESSAO"]))
     print("TEMPERATURA = ", np.average(PDFdata["TEMPERATURA"]))
 
     # -------------------------------------------------------------------------------------------
-    print("\nMEDIANA") # Aplicando mediana no dia i
+    print("\nMEDIANA") # Aplicando mediana no dia i para cada parametro
     print("BATIMENTO = ",PDFdata["BATIMENTO"].median())
     print("PRESSAO = ",PDFdata["PRESSAO"].median())
     print("TEMPERATURA = ",PDFdata["TEMPERATURA"].median())
 
     # -------------------------------------------------------------------------------------------
-    print("\nMODA") # Aplicando moda no dia i
+    print("\nMODA") # Aplicando moda no dia i para cada parametro
     print("BATIMENTO = ",PDFdata["BATIMENTO"].mode())
     print("PRESSAO = ",PDFdata["PRESSAO"].mode())
     print("TEMPERATURA = ",PDFdata["TEMPERATURA"].mode())
 
     # -------------------------------------------------------------------------------------------
-    print("\nVALOR MAXIMO") # Aplicando Valor maximo no dia i
+    print("\nVALOR MAXIMO") # Aplicando Valor maximo no dia i para cada parametro
     print("BATIMENTO =",max(PDFdata["BATIMENTO"]))
     print("PRESSAO =",max(PDFdata["PRESSAO"]))
     print("TEMPERATURA =",max(PDFdata["TEMPERATURA"]))
 
     # -------------------------------------------------------------------------------------------
-    print("\nVALOR MINIMO") # Aplicando minimo no dia i
+    print("\nVALOR MINIMO") # Aplicando minimo no dia i para cada parametro
     print("BATIMENTO =",min(PDFdata["BATIMENTO"]))
     print("PRESSAO =",min(PDFdata["PRESSAO"]))
     print("TEMPERATURA =",min(PDFdata["TEMPERATURA"]))
 
     # -------------------------------------------------------------------------------------------
-    print("\nAMPLITUDE") # Aplicando amplitude no dia i
+    print("\nAMPLITUDE") # Aplicando amplitude no dia i para cada parametro
     print("BATIMENTO =",max(PDFdata["BATIMENTO"])-min(PDFdata["BATIMENTO"]))
     print("PRESSAO =",max(PDFdata["PRESSAO"])-min(PDFdata["PRESSAO"]))
     print("TEMPERATURA =",max(PDFdata["TEMPERATURA"])-min(PDFdata["TEMPERATURA"]))
