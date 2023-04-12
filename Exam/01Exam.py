@@ -6,6 +6,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn import linear_model
 
 print('\033[1;34m===================================================================================== \033[m')
 print('\033[1;34mEXERCICIO 1\n \033[m')
@@ -60,7 +61,7 @@ def prepareData(listValues, range):
 # Lendo os dados do arquivo externo 
 print('\033[33mImportando arquivo...\033[m')
 currentDirectory = os.path.dirname(os.path.abspath(__file__)) # Define o diretorio atual como o diretorio do arquivo
-fileName = os.path.join(currentDirectory, 'sinaisvitais003 100dias DV2 RAxxx9.txt') # Partindo do diretorio, procuramos pelo nome do arquivo
+fileName = os.path.join(currentDirectory, 'sinaisvitais003 100dias DV2 RAxxx9test.txt') # Partindo do diretorio, procuramos pelo nome do arquivo
 
 time = [] # Lista para armazenar as HORAS
 cardiacBeatings = [] # Lista para armazenar BATIMENTOS CARDIACOS
@@ -112,106 +113,189 @@ sns.heatmap(correlation, cmap='coolwarm', annot=True)
 plt.show()
 print('\033[33mMatrix de correlação plotada...\033[m')
 
-
-
-# # SEPARANDO OS VALORES
-# itens=[]
-# for i in correlation:
-#     # print("PARÂMETRO: ",i)
-#     itens.append(i)
-#     st=correlation[i]
-#     sst=[]
-#     for j in range(len(st)):
-#         sst.append(str(st[j])+" ")
-#     # print(sst)
-
-# # CORRELACAO EM BI
-# for pos,i in enumerate(correlation):
-#     st=correlation[i]
-#     print("\n\nAVALIANDO: ",i)
-#     for j in range(pos,len(st)):
-#         if pos!=j:
-#             if st[j]>=0.8:
-#                 print(itens[pos]," E ",itens[j]," APRESENTA ALTA CORRELAÇÃO, PROPOR PROPAGANDA DE MANUTENÇÃO DE VENDAS")
-#             elif st[j]>=0.5 and st[j]<0.8:
-#                 print(itens[pos]," E ",itens[j]," APRESENTA ALGUMA CORRELAÇÃO, PROPOR DIVULGAÇÃO")
-#             else:
-#                 print(itens[pos]," E ",itens[j]," APRESENTA BAIXA CORRELAÇÃO, AVALIAR A POSSIBILIDADE DE INTEGRAÇÃO DE VENDAS COM PROMOÇÃO")
-        
-
-# input('aaaa')
-print('\033[1;34m\n===================================================================================== \033[m')
-print('\033[1;34mEXERCICIO 3\n \033[m')
-
-
-
-print('\033[1;34m===================================================================================== \033[m')
-print('\033[1;34mEXERCICIO 4\n \033[m')
-
 # Descobrindo quantos pacotes existem dentro do arquivo de input
 packages=int(len(cashedFile) / 24)
-print("NÚMERO TOTAL DE PACOTES PARA ANÁLISE:  ", packages)
+print("\nNÚMERO TOTAL DE PACOTES PARA ANÁLISE:  ", packages)
 
 # Aqui vamos dividir o data set em pacotes de 24 e aplicar a correlação para cada um dos parametros
 # (BATIMENTO CARDÍACO, PRESSÃO ARTERIAL E TEMPERATURA CORPORAL)
 for i in range(packages):
+    packageTime = time[i*24:(i+1)*24]
     packageCardiacBeatings = cardiacBeatings[i*24:(i+1)*24]
     packageBloodPressure = bloodPressure[i*24:(i+1)*24]
     packageBodyTemperature = bodyTemperature[i*24:(i+1)*24]
 
-    PauxDF=[]  
-    PauxDF+=[(packageCardiacBeatings[j],packageBloodPressure[j],packageBodyTemperature[j]) for j in range(0,24)]  
-    PDFdata = pd.DataFrame(PauxDF, columns=["BATIMENTO","PRESSAO","TEMPERATURA"])
+    print('\033[1;34m\n=================================================== \033[m')
+    print('\033[1;34m                    EXERCICIO 3\033[m')
+    print('\033[1;34m=================================================== \033[m')
 
-    print("\n ***********************************************")
-    print("ANALISANDO PACOTE DO DIA: ", i + 1)
+    PauxDF=[]  
+    PauxDF+=[(packageTime[j], packageCardiacBeatings[j],packageBloodPressure[j],packageBodyTemperature[j]) for j in range(0,24)]  
+    PDFdata = pd.DataFrame(PauxDF, columns=["HORA", "BATIMENTO","PRESSAO","TEMPERATURA"])
+
+    print(f"\033[0;32m\nANALISANDO PACOTE DO DIA: {i + 1}\n\033[m")
     # -------------------------------------------------------------------------------------------
-    print("CORRELAÇÃO") # Aplicando correlação no dia i
     packageCorrelation = PDFdata.corr(method='pearson')
     print(packageCorrelation)
+    print('\n')
+
+    # -------------------------------------------------------------------------------------------    
+    # SEPARANDO OS VALORES
+    itens=[]
+    for count in packageCorrelation:
+        itens.append(count)
+        st = packageCorrelation[count]
+        sst = []
+        for j in range(len(st)):
+            sst.append(str(st[j]) + " ")
+
+    # CORRELACAO EM BI
+    for position, parameter in enumerate(packageCorrelation):
+        st = packageCorrelation[parameter]
+        for j in range(position,len(st)):
+            if (position != j):
+                if (st[j] >= 0.8):
+                    print(f'{itens[position]} E {itens[j]} APRESENTA ALTA CORRELAÇÃO')
+                elif ((st[j] >= 0.5) and (st[j] < 0.8)):
+                    print(f'{itens[position]} E {itens[j]} APRESENTA ALGUMA CORRELAÇÃO')
+                else:
+                    print(f'{itens[position]} E {itens[j]} APRESENTA BAIXA CORRELAÇÃO')
+    
+    # -------------------------------------------------------------------------------------------
+    # Plotando a matriz de correlação de todo o data set
+    print(f'\033[33m\nPlotando matrix de correlação...\033[m')
+    sns.heatmap(packageCorrelation, cmap='coolwarm', annot=True)
+    plt.show()
+    print(f'\033[33mMatrix de correlação plotada...\n\033[m')
 
     # -------------------------------------------------------------------------------------------
-    print("\nVALOR MEDIO") # Aplicando valor médio no dia i para cada parametro
+    regressao = linear_model.LinearRegression()
+     # SEPARANDO OS CAMPOS
+    vBeatings=np.array(PDFdata[["BATIMENTO"]])
+    vPressure=np.array(PDFdata[["PRESSAO"]])
+
+    regressao.fit(vBeatings, vPressure)
+
+
+    # PRINT PARAMETROS DA REGRESSAO LINEAR
+    print("\n*********************************************")
+    print("***** AVALIAÇÃO DO PERFIL DA SAÚDE")
+    print("Coeficiente de Regressão =",regressao.coef_) # inclinação da curva
+    print("Interceptação = ",regressao.intercept_) # é o ponto onde X=0 e a reta vao cruzar o eixo Y
+    
+    # BI - Business Intelligence - UTILIZANDO 
+    if (regressao.coef_ > 0):
+        print("BI - VENDAS EM CRESCIMENTO") # não precisa de propaganda, as vendas estão boas, ou mantem o minimo de propaganda
+    elif regressao.coef_ == 0: # pode ser estavel com uma leve queda, nesse caso (regressao.coef_ > -1 and regressao.coef_ < 1)
+        print("BI - VENDAS ESTAVEIS") # usa uma estrategia de marketing pra almentar/potencializar as vendas
+    else:
+        print("BI - VENDAS EM QUEDA")
+
+    # -------------------------------------------------------------------------------------------
+    #     # Criando um gráfico de linha com dois eixos y
+    # fig, ax1 = plt.subplots()
+
+    # # Plotando a primeira linha no primeiro eixo y
+    # ax1.plot(packageTime, packageBloodPressure, color='blue')
+    # ax1.set_xlabel('Horas')
+    # ax1.set_ylabel('Pressão', color='blue')
+
+    # # Criando um segundo eixo y compartilhando o mesmo eixo x do primeiro eixo y
+    # ax2 = ax1.twinx()
+
+    # # Plotando a segunda linha no segundo eixo y
+    # ax2.plot(packageTime, packageCardiacBeatings, color='red')
+    # ax2.set_ylabel('Batimentos', color='red')
+
+    # # Exibindo o gráfico
+    # plt.show()
+
+    # # Criar gráfico de linhas para visualizar as tendências dos dados
+    # print(f'\033[33m\nPlotando GRÁFICO DE LINHA para tendências do pacote do dia {i + 1}..\033[m')
+    # PDFdata.plot(kind='line', x='BATIMENTO', y='PRESSAO') # Tendencia do batimento com a pressão 
+    # PDFdata.plot(kind='line', x='BATIMENTO', y='TEMPERATURA')  # Tendencia do batimento com a temperatura   
+    # PDFdata.plot(kind='line', x='TEMPERATURA', y='PRESSAO') # Tendencia da pressão com a temperatura
+    # plt.show()
+    # print(f'\033[33mGRÁFICO DE LINHA do dia {i + 1} plotada...\033[m')
+
+    # # Plotar os dados dividindo por paramentro para analise de amplitude
+    # print(f'\033[33m\nPlotando dados para analise de amplitude pacote do dia {i + 1}..\033[m')
+    # print(f'\033[33m...Batimentos...\033[m')
+    # plt.plot( packageCardiacBeatings, 'b')
+    # plt.title("SINAL BATIMENTO CARDIACO")
+    # plt.xlabel("AMOSTRA")
+    # plt.ylabel("AMPLITUDE")
+    # plt.show()
+
+    # print(f'\033[33m...Pressão...\033[m')
+    # plt.plot( packageBloodPressure, 'b')
+    # plt.title("SINAL PRESSAO ARTERIAL")
+    # plt.xlabel("AMOSTRA")
+    # plt.ylabel("AMPLITUDE")
+    # plt.show()
+
+    # print(f'\033[33m...Temperatura...\033[m')
+    # plt.plot( packageBodyTemperature, 'b')
+    # plt.title("SINAL TEMPERATURA")
+    # plt.xlabel("AMOSTRA")
+    # plt.ylabel("AMPLITUDE")
+    # plt.show()
+    # print(f'\033[33mDados do dia {i + 1} plotada...\033[m')
+        
+
+    print('\033[1;34m\n=================================================== \033[m')
+    print('\033[1;34m                    EXERCICIO 4\033[m')
+    print('\033[1;34m=================================================== \033[m')
+
+    # -------------------------------------------------------------------------------------------
+    # Aplicando valor médio no dia i para cada parametro
+    print(f"\033[0;32m\nVALOR MEDIO\033[m")
     print("BATIMENTO = ",PDFdata["BATIMENTO"].mean())
     print("PRESSAO = ",PDFdata["PRESSAO"].mean())
     print("TEMPERATURA = ",PDFdata["TEMPERATURA"].mean())
 
     # -------------------------------------------------------------------------------------------
-    print("\nVALOR MEDIO NumPy") # Aplicando média com avarege no dia i para cada parametro
+    # Aplicando média com avarege no dia i para cada parametro
+    print(f"\033[0;32m\nVALOR MEDIO NumPy\033[m")
     print("BATIMENTO = ", np.average(PDFdata["BATIMENTO"]))
     print("PRESSAO = ", np.average(PDFdata["PRESSAO"]))
     print("TEMPERATURA = ", np.average(PDFdata["TEMPERATURA"]))
 
     # -------------------------------------------------------------------------------------------
-    print("\nMEDIANA") # Aplicando mediana no dia i para cada parametro
+    # Aplicando mediana no dia i para cada parametro
+    print(f"\033[0;32m\nMEDIANA\033[m")
     print("BATIMENTO = ",PDFdata["BATIMENTO"].median())
     print("PRESSAO = ",PDFdata["PRESSAO"].median())
     print("TEMPERATURA = ",PDFdata["TEMPERATURA"].median())
 
     # -------------------------------------------------------------------------------------------
-    print("\nMODA") # Aplicando moda no dia i para cada parametro
+    # Aplicando moda no dia i para cada parametro
+    print(f"\033[0;32m\nMODA\033[m")
     print("BATIMENTO = ",PDFdata["BATIMENTO"].mode())
     print("PRESSAO = ",PDFdata["PRESSAO"].mode())
     print("TEMPERATURA = ",PDFdata["TEMPERATURA"].mode())
 
     # -------------------------------------------------------------------------------------------
-    print("\nVALOR MAXIMO") # Aplicando Valor maximo no dia i para cada parametro
+    # Aplicando Valor maximo no dia i para cada parametro
+    print(f"\033[0;32m\nVALOR MAXIMO\033[m")
     print("BATIMENTO =",max(PDFdata["BATIMENTO"]))
     print("PRESSAO =",max(PDFdata["PRESSAO"]))
     print("TEMPERATURA =",max(PDFdata["TEMPERATURA"]))
 
     # -------------------------------------------------------------------------------------------
-    print("\nVALOR MINIMO") # Aplicando minimo no dia i para cada parametro
+    # Aplicando minimo no dia i para cada parametro
+    print(f"\033[0;32m\nVALOR MINIMO\033[m")
     print("BATIMENTO =",min(PDFdata["BATIMENTO"]))
     print("PRESSAO =",min(PDFdata["PRESSAO"]))
     print("TEMPERATURA =",min(PDFdata["TEMPERATURA"]))
 
     # -------------------------------------------------------------------------------------------
-    print("\nAMPLITUDE") # Aplicando amplitude no dia i para cada parametro
+    # Aplicando amplitude no dia i para cada parametro
+    print(f"\033[0;32m\nAMPLITUDE\033[m")
     print("BATIMENTO =",max(PDFdata["BATIMENTO"])-min(PDFdata["BATIMENTO"]))
     print("PRESSAO =",max(PDFdata["PRESSAO"])-min(PDFdata["PRESSAO"]))
     print("TEMPERATURA =",max(PDFdata["TEMPERATURA"])-min(PDFdata["TEMPERATURA"]))
 
-    checkBreak = input("Digite qualquer tecla para continuar ou 'S' para sair...")
+    checkBreak = input("\033[33m\nDigite qualquer tecla para continuar ou 'S' para sair... \033[m")
     if checkBreak.upper() == 'S':
         break
