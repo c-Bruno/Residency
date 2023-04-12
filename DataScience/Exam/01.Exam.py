@@ -155,11 +155,11 @@ for i in range(packages):
         for j in range(position,len(st)):
             if (position != j):
                 if (st[j] >= 0.8):
-                    print(f'{itens[position]} E {itens[j]} APRESENTA ALTA CORRELAÇÃO')
+                    print(f'{itens[position]} E {itens[j]} APRESENTAM \033[1;31mALTA\033[m CORRELAÇÃO')
                 elif ((st[j] >= 0.5) and (st[j] < 0.8)):
-                    print(f'{itens[position]} E {itens[j]} APRESENTA ALGUMA CORRELAÇÃO')
+                    print(f'{itens[position]} E {itens[j]} APRESENTAM \033[1;34mALGUMA\033[m CORRELAÇÃO')
                 else:
-                    print(f'{itens[position]} E {itens[j]} APRESENTA BAIXA CORRELAÇÃO')
+                    print(f'{itens[position]} E {itens[j]} APRESENTAM BAIXA CORRELAÇÃO')
     
     # -------------------------------------------------------------------------------------------
     # Plotando a matriz de correlação de todo o data set
@@ -179,7 +179,7 @@ for i in range(packages):
 
     # PRINT PARAMETROS DA REGRESSAO LINEAR
     print("\n*********************************************")
-    print("***** AVALIAÇÃO DO PERFIL DA SAÚDE")
+    print("***** AVALIAÇÃO DO PERFIL DA SAÚDE *****")
     print("Coeficiente de Regressão =",regressao.coef_) # inclinação da curva
     print("Interceptação = ",regressao.intercept_) # é o ponto onde X=0 e a reta vao cruzar o eixo Y
     
@@ -190,6 +190,7 @@ for i in range(packages):
         print("BI - VENDAS ESTAVEIS") # usa uma estrategia de marketing pra almentar/potencializar as vendas
     else:
         print("BI - VENDAS EM QUEDA")
+    print("\n*********************************************")
 
     # -------------------------------------------------------------------------------------------
     #     # Criando um gráfico de linha com dois eixos y
