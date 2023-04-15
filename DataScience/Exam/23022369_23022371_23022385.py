@@ -61,7 +61,7 @@ def prepareData(listValues, range):
 # Lendo os dados do arquivo externo 
 print('\033[33mImportando arquivo...\033[m')
 currentDirectory = os.path.dirname(os.path.abspath(__file__)) # Define o diretorio atual como o diretorio do arquivo
-fileName = os.path.join(currentDirectory, 'sinaisvitais003 100dias DV2 RAxxx9test.txt') # Partindo do diretorio, procuramos pelo nome do arquivo
+fileName = os.path.join(currentDirectory, 'sinaisvitais003 100dias DV2 RAxxx9.txt') # Partindo do diretorio, procuramos pelo nome do arquivo
 
 time = [] # Lista para armazenar as HORAS
 cardiacBeatings = [] # Lista para armazenar BATIMENTOS CARDIACOS
@@ -150,6 +150,7 @@ for i in range(packages):
             sst.append(str(st[j]) + " ")
 
     # CORRELACAO EM BI
+    print(f"\033[0;32m\nAnalise de correlação: {i + 1}\n\033[m")
     for position, parameter in enumerate(packageCorrelation):
         st = packageCorrelation[parameter]
         for j in range(position,len(st)):
@@ -170,84 +171,43 @@ for i in range(packages):
 
     # -------------------------------------------------------------------------------------------
     regressao = linear_model.LinearRegression()
-     # SEPARANDO OS CAMPOS
+    # SEPARANDO OS CAMPOS
     vBeatings=np.array(PDFdata[["BATIMENTO"]])
     vPressure=np.array(PDFdata[["PRESSAO"]])
-
     regressao.fit(vBeatings, vPressure)
 
-
     # PRINT PARAMETROS DA REGRESSAO LINEAR
-    print("\n*********************************************")
-    print("***** AVALIAÇÃO DO PERFIL DA SAÚDE *****")
     print("Coeficiente de Regressão =",regressao.coef_) # inclinação da curva
     print("Interceptação = ",regressao.intercept_) # é o ponto onde X=0 e a reta vao cruzar o eixo Y
     
-    # BI - Business Intelligence - UTILIZANDO 
-    if (regressao.coef_ > 0):
-        print("BI - VENDAS EM CRESCIMENTO") # não precisa de propaganda, as vendas estão boas, ou mantem o minimo de propaganda
-    elif regressao.coef_ == 0: # pode ser estavel com uma leve queda, nesse caso (regressao.coef_ > -1 and regressao.coef_ < 1)
-        print("BI - VENDAS ESTAVEIS") # usa uma estrategia de marketing pra almentar/potencializar as vendas
-    else:
-        print("BI - VENDAS EM QUEDA")
-    print("\n*********************************************")
+    # Regressão linear para prever os batimentos com base na temperatura, resultado plotado com o gráfico de dispersão
+    X = PDFdata[['TEMPERATURA']]
+    y = PDFdata['BATIMENTO']
+    print('\n')
+    regressao =  linear_model.LinearRegression().fit(X, y)
+    print('Coeficiente de regressão:', regressao.coef_)
+    print('Intercepto de regressão:', regressao.intercept_)
+    y_pred = regressao.predict(X)
+    sns.scatterplot(x=PDFdata['TEMPERATURA'], y=PDFdata['BATIMENTO'])
+    sns.lineplot(x=PDFdata['TEMPERATURA'], y=y_pred)
+    plt.show()
+    
+    # Regressão linear para prever os batimentos com base na pressão, resultado plotado com o gráfico de dispersão 
+    X = PDFdata[['PRESSAO']]
+    y = PDFdata['BATIMENTO']
+    print('\n')
+    regressao =  linear_model.LinearRegression().fit(X, y)
+    print('Coeficiente de regressão:', regressao.coef_)
+    print('Intercepto de regressão:', regressao.intercept_)
+    y_pred = regressao.predict(X)
+    sns.scatterplot(x=PDFdata['PRESSAO'], y=PDFdata['BATIMENTO'])
+    sns.lineplot(x=PDFdata['PRESSAO'], y=y_pred)
+    plt.show()
 
-    # -------------------------------------------------------------------------------------------
-    #     # Criando um gráfico de linha com dois eixos y
-    # fig, ax1 = plt.subplots()
-
-    # # Plotando a primeira linha no primeiro eixo y
-    # ax1.plot(packageTime, packageBloodPressure, color='blue')
-    # ax1.set_xlabel('Horas')
-    # ax1.set_ylabel('Pressão', color='blue')
-
-    # # Criando um segundo eixo y compartilhando o mesmo eixo x do primeiro eixo y
-    # ax2 = ax1.twinx()
-
-    # # Plotando a segunda linha no segundo eixo y
-    # ax2.plot(packageTime, packageCardiacBeatings, color='red')
-    # ax2.set_ylabel('Batimentos', color='red')
-
-    # # Exibindo o gráfico
-    # plt.show()
-
-    # # Criar gráfico de linhas para visualizar as tendências dos dados
-    # print(f'\033[33m\nPlotando GRÁFICO DE LINHA para tendências do pacote do dia {i + 1}..\033[m')
-    # PDFdata.plot(kind='line', x='BATIMENTO', y='PRESSAO') # Tendencia do batimento com a pressão 
-    # PDFdata.plot(kind='line', x='BATIMENTO', y='TEMPERATURA')  # Tendencia do batimento com a temperatura   
-    # PDFdata.plot(kind='line', x='TEMPERATURA', y='PRESSAO') # Tendencia da pressão com a temperatura
-    # plt.show()
-    # print(f'\033[33mGRÁFICO DE LINHA do dia {i + 1} plotada...\033[m')
-
-    # # Plotar os dados dividindo por paramentro para analise de amplitude
-    # print(f'\033[33m\nPlotando dados para analise de amplitude pacote do dia {i + 1}..\033[m')
-    # print(f'\033[33m...Batimentos...\033[m')
-    # plt.plot( packageCardiacBeatings, 'b')
-    # plt.title("SINAL BATIMENTO CARDIACO")
-    # plt.xlabel("AMOSTRA")
-    # plt.ylabel("AMPLITUDE")
-    # plt.show()
-
-    # print(f'\033[33m...Pressão...\033[m')
-    # plt.plot( packageBloodPressure, 'b')
-    # plt.title("SINAL PRESSAO ARTERIAL")
-    # plt.xlabel("AMOSTRA")
-    # plt.ylabel("AMPLITUDE")
-    # plt.show()
-
-    # print(f'\033[33m...Temperatura...\033[m')
-    # plt.plot( packageBodyTemperature, 'b')
-    # plt.title("SINAL TEMPERATURA")
-    # plt.xlabel("AMOSTRA")
-    # plt.ylabel("AMPLITUDE")
-    # plt.show()
-    # print(f'\033[33mDados do dia {i + 1} plotada...\033[m')
-        
 
     print('\033[1;34m\n=================================================== \033[m')
     print('\033[1;34m                    EXERCICIO 4\033[m')
     print('\033[1;34m=================================================== \033[m')
-
     # -------------------------------------------------------------------------------------------
     # Aplicando valor médio no dia i para cada parametro
     print(f"\033[0;32m\nVALOR MEDIO\033[m")
@@ -265,16 +225,16 @@ for i in range(packages):
     # -------------------------------------------------------------------------------------------
     # Aplicando mediana no dia i para cada parametro
     print(f"\033[0;32m\nMEDIANA\033[m")
-    print("BATIMENTO = ",PDFdata["BATIMENTO"].median())
-    print("PRESSAO = ",PDFdata["PRESSAO"].median())
-    print("TEMPERATURA = ",PDFdata["TEMPERATURA"].median())
+    print("BATIMENTO = ", PDFdata["BATIMENTO"].median())
+    print("PRESSAO = ", PDFdata["PRESSAO"].median())
+    print("TEMPERATURA = ", PDFdata["TEMPERATURA"].median())
 
     # -------------------------------------------------------------------------------------------
     # Aplicando moda no dia i para cada parametro
     print(f"\033[0;32m\nMODA\033[m")
-    print("BATIMENTO = ",PDFdata["BATIMENTO"].mode())
-    print("PRESSAO = ",PDFdata["PRESSAO"].mode())
-    print("TEMPERATURA = ",PDFdata["TEMPERATURA"].mode())
+    print("BATIMENTO = ", PDFdata["BATIMENTO"].mode())
+    print("PRESSAO = ", PDFdata["PRESSAO"].mode())
+    print("TEMPERATURA = ", PDFdata["TEMPERATURA"].mode())
 
     # -------------------------------------------------------------------------------------------
     # Aplicando Valor maximo no dia i para cada parametro
@@ -286,16 +246,49 @@ for i in range(packages):
     # -------------------------------------------------------------------------------------------
     # Aplicando minimo no dia i para cada parametro
     print(f"\033[0;32m\nVALOR MINIMO\033[m")
-    print("BATIMENTO =",min(PDFdata["BATIMENTO"]))
-    print("PRESSAO =",min(PDFdata["PRESSAO"]))
-    print("TEMPERATURA =",min(PDFdata["TEMPERATURA"]))
+    print("BATIMENTO =", min(PDFdata["BATIMENTO"]))
+    print("PRESSAO =", min(PDFdata["PRESSAO"]))
+    print("TEMPERATURA =", min(PDFdata["TEMPERATURA"]))
 
     # -------------------------------------------------------------------------------------------
     # Aplicando amplitude no dia i para cada parametro
     print(f"\033[0;32m\nAMPLITUDE\033[m")
-    print("BATIMENTO =",max(PDFdata["BATIMENTO"])-min(PDFdata["BATIMENTO"]))
-    print("PRESSAO =",max(PDFdata["PRESSAO"])-min(PDFdata["PRESSAO"]))
-    print("TEMPERATURA =",max(PDFdata["TEMPERATURA"])-min(PDFdata["TEMPERATURA"]))
+    print("BATIMENTO =", max(PDFdata["BATIMENTO"]) - min(PDFdata["BATIMENTO"]))
+    print("PRESSAO =", max(PDFdata["PRESSAO"]) - min(PDFdata["PRESSAO"]))
+    print("TEMPERATURA =", max(PDFdata["TEMPERATURA"]) - min(PDFdata["TEMPERATURA"]))
+
+    # -------------------------------------------------------------------------------------------
+
+    print(f'\033[33m\nIniciando tomada de decisão...\n\033[m')
+    # Tomando decisões com base nas médias
+    # Analise de batimentos cardiacos -------------------------------------------------------------------------------------------
+    if (PDFdata["BATIMENTO"].mean() < 50):
+        print(f"O batimento está abaixo do normal. Verifique se há sinais de fadiga ou desidratação. Batimento médio: {PDFdata['BATIMENTO'].mean():,.2f}")
+    elif (PDFdata["BATIMENTO"].mean() > 90):
+        print(f"O batimento está acima do normal. Verifique se há sinais de estresse ou atividade física intensa. Batimento médio:{PDFdata['BATIMENTO'].mean():,.2f}", )
+    else:
+        print(f"O batimento está dentro do normal. Batimento médio: {PDFdata['BATIMENTO'].mean():,.2f}")
+
+    #  Analise de pressão arterial -------------------------------------------------------------------------------------------
+    if ((PDFdata["PRESSAO"].mean() * 10 < 120) or (PDFdata["PRESSAO"].mean()  * 10 > 140)):
+        print(f"A pressão arterial está fora da faixa normal. Consulte um médico. Pressão média {PDFdata['PRESSAO'].mean():,.2f}", )
+    else:
+        print(f"A pressão arterial está dentro da faixa normal. Pressão média {PDFdata['PRESSAO'].mean():,.2f}")
+
+    #  Analise de temperatura corporal -------------------------------------------------------------------------------------------
+    if (PDFdata["TEMPERATURA"].mean() > 37.5):
+        print(f"A temperatura está alta. Verifique se há sinais de febre ou infecção. Temperatura média {PDFdata['TEMPERATURA'].mean():,.2f}")
+    else:
+        print(f"A temperatura está dentro da faixa normal. Temperatura média {PDFdata['TEMPERATURA'].mean():,.2f}")
+      
+    fig, axs = plt.subplots(1, 3, figsize=(10, 4))
+    axs[0].boxplot(PDFdata['PRESSAO'])
+    axs[0].set_title('Pressão')
+    axs[1].boxplot(PDFdata['BATIMENTO'])
+    axs[1].set_title('Batimento')
+    axs[2].boxplot(PDFdata['TEMPERATURA'])
+    axs[2].set_title('Temperatura')
+    plt.show()
 
     checkBreak = input("\033[33m\nDigite qualquer tecla para continuar ou 'S' para sair... \033[m")
     if checkBreak.upper() == 'S':
